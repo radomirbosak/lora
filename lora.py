@@ -1,6 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-
 from enum import Enum, IntEnum, unique
 from random import shuffle
 
@@ -10,25 +7,41 @@ class PlayerError(Exception):
 
 @unique
 class Color(Enum):
-    cerven   = 1
-    zelen    = 2
-    gula     = 3
-    zalud    = 4
+    cerven   = (1, 'c')
+    zelen    = (2, 'z')
+    gula     = (3, 'g')
+    zalud    = (4, 'd')
+
+    @staticmethod
+    def from_string(text):
+        return {c.value[1]: c for c in Color}[text]
+
+    def __str__(self):
+        return self.value[1]
 
 @unique
-class Value(IntEnum):
-    sedmicka = 7
-    osmicka  = 8
-    devina   = 9
-    desina   = 10
-    dolnik   = 11
-    hornik   = 12
-    kral     = 13
-    eso      = 14
+class Value(Enum):
+    sedmicka = (7, '7')
+    osmicka  = (8, '8')
+    devina   = (9, '9')
+    desina   = (10, '10')
+    dolnik   = (11, 'd')
+    hornik   = (12, 'h')
+    kral     = (13, 'k')
+    eso      = (14, 'e')
+
+    @staticmethod
+    def from_string(text):
+        d = {v.value[1]: v for v in Value}
+        d.update({'a': Value.desina})
+        return d[text]
+
+    def __str__(self):
+        return self.value[1]
 
     def shift_value(self, shift):
-        minimum = min(Value)
-        maximum = max(Value)
+        minimum = min(Value, key=lambda x: x.value[0])
+        maximum = max(Value, key=lambda x: x.value[0])
         new_value = ((self.value - minimum + shift) % (maximum - minimum + 1)) + minimum
         for value in Value:
             if value.value == new_value:
@@ -58,10 +71,10 @@ class Card():
         self.value = value
 
     def __str__(self):
-        return "{0.name} {1.name}".format(self.color, self.value)
+        return "{}{}".format(self.color, self.value)
 
     def __repr__(self):
-        return self.__str__()
+        return "{0.name} {1.name}".format(self.color, self.value)
 
     def __eq__(self, other):
         return self.color == other.color and self.value == other.value
@@ -72,6 +85,10 @@ class Card():
     def next_card(self):
         return Card(self.color, self.value.next_value())
 
+    @staticmethod
+    def from_string(text):
+        return Card(Color.from_string(text[0]), Value.from_string(text[1:]))
+
 class OwnedCard(Card):
     def __init__(self, color, value, owner=None):
         super().__init__(color, value)
@@ -79,10 +96,17 @@ class OwnedCard(Card):
 
 
 class Player():
-    def __init__(self, hand):
-        self.hand = hand
+    def __init__(self, name):
+        self.name = name
+        self.hand = []
         self.pile = []
 
+class Game():
+    def __init__(self):
+        deck = full_deck()
+
+        self.players = [Player() for _ in range(4)]
+        deal(deck, players)
 
 def deal(deck, players):
     shuffle(deck)
@@ -107,10 +131,5 @@ def player_put_card(card, player, deck_dest):
     player.hand.remove(card)
     deck_dest.append(OwnedCard(card.color, card.value, player))
 
-class Game():
-
-    def __init__(self):
-        deck = full_deck()
-
-        self.players = [Player() for _ in range(4)]
-        deal(deck, players)
+def deck_string(deck):
+    return ' '.join(str(card) for card in deck)

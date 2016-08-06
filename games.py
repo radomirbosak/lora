@@ -1,4 +1,5 @@
-from lora import Color, Value, Card, move_card, player_put_card
+from lora import Color, Value, Card
+from lora import move_card, player_put_card, full_deck, deal
 
 class GameBase():
     def __init__(self, players, starting_player):
@@ -13,10 +14,10 @@ class GameBase():
             player.hand = []
             player.pile = []
 
-        self.pile()
+        self.pile = []
 
         deck = full_deck()
-        deal(deck, players)
+        deal(deck, self.players)
 
     def reordered_players(self):
         current_index = self.players.index(self.current_player)
@@ -27,21 +28,22 @@ class GameBase():
 class StychyBase(GameBase):
     def game(self):
         while(all(player.hand for player in self.players)):
-            self.stych()
+            yield from self.stych()
 
 
     def stych(self):
         self.current_player = self.starting_player
 
         for player in self.reordered_players():
-            card = player.play_card(self.pile)
+            card = yield player, self.pile
+            #card = player.play_card(self.pile)
             if not self._is_card_valid(card, player):
                 raise PlayerError("Invalid card chosen")
             player_put_card(card, player, self.pile)
 
         trumph = self.pile[0].color
 
-        take_card    = max((card for card in self.pile if card.color == trumph), key=lambda x: x.value)
+        take_card    = max((card for card in self.pile if card.color == trumph), key=lambda x: x.value[0])
         taker_player = take_card.owner
 
         taker_player.pile.extend(self.pile)
@@ -111,10 +113,11 @@ class MalaLora(GameBase):
     
     def game(self):
         while all(player.hand for player in self.players):
-            self.stych()
+            yield from self.stych()
 
     def stych(self):
-        current_card = self.current_player.play_card(self.pile)
+        current_card = yield player, self.pile        
+        #current_card = self.current_player.play_card(self.pile)
         self.player_put_card(current_card, self.current_player, self.pile)
         last_put_card = current_card
 
@@ -147,7 +150,8 @@ class VelkaLora(GameBase):
     def game(self):
         while True:
             for player in self.reordered_players():
-                card = player.play_card(self.pile)
+                #card = player.play_card(self.pile)
+                card = yield player, self.piles
                 if not self._is_card_valid(card, player):
                     raise PlayerError("Invalid card chosen")
                 self.player_put_card(card, player, self.piles[card.color])
