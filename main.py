@@ -4,15 +4,22 @@
 from lora import Card, Player, deal, full_deck, deck_string
 from games import Stychy
 
+from termcolor import cprint
+
 def main():
     deck = full_deck()
 
     players = [Player('Player {}'.format(i)) for i in range(4)]
     deal(deck, players)
 
+
     # let's play stychy
     stychy = Stychy(players, players[0])
     stychy.initgame()
+
+    for player in players:
+        player.sort()
+
 
     # obtain the game generator
     game = stychy.game()
@@ -20,9 +27,10 @@ def main():
 
     while 1:
         prompt = "{}: ".format(player.name)
-        
+
         print_game_state(stychy, player)
         card = Card.from_string(input(prompt))
+        print()
         player, pile = game.send(card)
 
 def print_game_state(game, player):

@@ -1,4 +1,4 @@
-from lora import Color, Value, Card
+from lora import Color, Value, Card, PlayerError
 from lora import move_card, player_put_card, full_deck, deal
 
 class GameBase():
@@ -43,7 +43,7 @@ class StychyBase(GameBase):
 
         trumph = self.pile[0].color
 
-        take_card    = max((card for card in self.pile if card.color == trumph), key=lambda x: x.value[0])
+        take_card    = max((card for card in self.pile if card.color == trumph), key=lambda c: c.value.value[0])
         taker_player = take_card.owner
 
         taker_player.pile.extend(self.pile)

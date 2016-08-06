@@ -1,23 +1,25 @@
 from enum import Enum, IntEnum, unique
 from random import shuffle
 
+from termcolor import colored
+
 class PlayerError(Exception):
     def __init__(self, message):
         super().__init__(message)
 
 @unique
 class Color(Enum):
-    cerven   = (1, 'c')
-    zelen    = (2, 'z')
-    gula     = (3, 'g')
-    zalud    = (4, 'd')
+    cerven   = {'letter': 'c', 'color': 'red'}
+    zelen    = {'letter': 'z', 'color': 'green'}
+    gula     = {'letter': 'g', 'color': 'yellow'}
+    zalud    = {'letter': 'd', 'color': 'white'}
 
     @staticmethod
     def from_string(text):
-        return {c.value[1]: c for c in Color}[text]
+        return {c.value['letter']: c for c in Color}[text]
 
     def __str__(self):
-        return self.value[1]
+        return self.value['letter']
 
 @unique
 class Value(Enum):
@@ -25,10 +27,10 @@ class Value(Enum):
     osmicka  = (8, '8')
     devina   = (9, '9')
     desina   = (10, '10')
-    dolnik   = (11, 'd')
-    hornik   = (12, 'h')
-    kral     = (13, 'k')
-    eso      = (14, 'e')
+    dolnik   = (11, 'D')
+    hornik   = (12, 'H')
+    kral     = (13, 'K')
+    eso      = (14, 'E')
 
     @staticmethod
     def from_string(text):
@@ -71,7 +73,7 @@ class Card():
         self.value = value
 
     def __str__(self):
-        return "{}{}".format(self.color, self.value)
+        return colored("{}{}".format(self.color, self.value), self.color.value['color'])
 
     def __repr__(self):
         return "{0.name} {1.name}".format(self.color, self.value)
@@ -100,6 +102,9 @@ class Player():
         self.name = name
         self.hand = []
         self.pile = []
+
+    def sort(self):
+        self.hand.sort(key=lambda c: (c.color.value['letter'], c.value.value[0]))
 
 class Game():
     def __init__(self):
