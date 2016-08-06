@@ -22,23 +22,28 @@ def main():
 
 
     # obtain the game generator
-    game = stychy.game()
-    player, pile = game.send(None)
+    game_control = stychy.game()
+    player, pile = game_control.send(None)
 
-    while 1:
-        prompt = "{}: ".format(player.name)
+    try:
+        while 1:
+            prompt = "{}: ".format("Your turn")
 
-        print_game_state(stychy, player)
-        card = Card.from_string(input(prompt))
-        print()
-        player, pile = game.send(card)
+            print_game_state(stychy, player)
+
+            card = Card.from_string(input(prompt))
+            player, pile = game_control.send(card)
+            print()
+            
+    except EOFError:
+        print("\nGame interrupted.")
 
 def print_game_state(game, player):
     game_name = "Stychy"
     hand_line = "{player}'s hand: {hand}".format(player=player.name, hand=deck_string(player.hand))
     pile_line = "Pile: {}".format(deck_string(game.pile))
     
-    print(game_name)
+    #print(game_name)
     print(hand_line)
     print(pile_line)
 

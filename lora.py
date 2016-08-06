@@ -12,7 +12,7 @@ class Color(Enum):
     cerven   = {'letter': 'c', 'color': 'red'}
     zelen    = {'letter': 'z', 'color': 'green'}
     gula     = {'letter': 'g', 'color': 'yellow'}
-    zalud    = {'letter': 'd', 'color': 'white'}
+    zalud    = {'letter': 'd', 'color': 'cyan'}
 
     @staticmethod
     def from_string(text):
